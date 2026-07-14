@@ -95,7 +95,7 @@
                 headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory })
             });
-            const data = await res.json();
+            const data = await res.json();à
             const responseText = data.choices[0].message.content;
             
             chatHistory.push({ role: "assistant", content: responseText });
