@@ -10,12 +10,13 @@
         .container { max-width: 600px; margin: auto; border: 1px solid #333; padding: 25px; border-radius: 8px; }
         h2 { font-size: 1.2rem; text-align: center; margin-bottom: 20px; }
         textarea, input[type="password"], button { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1e; border: 1px solid #444; color: white; box-sizing: border-box; }
-        button { background: var(--accent); border: none; font-weight: bold; cursor: pointer; }
+        button { background: var(--accent); border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
         button:disabled { background: #333; cursor: not-allowed; }
         .analysis-box { display: flex; justify-content: space-between; padding: 10px; background: #111; border: 1px solid #333; margin: 10px 0; }
         .score { text-align: center; font-size: 0.9rem; }
         .score b { display: block; color: var(--accent); }
-        #output-box { margin-top: 20px; padding: 15px; border: 1px solid #222; background: #000; min-height: 80px; white-space: pre-wrap; font-size: 0.9rem; }
+        #output-box { margin-top: 20px; padding: 15px; border: 1px solid #222; background: #000; min-height: 80px; white-space: pre-wrap; font-size: 0.9rem; border-left: 3px solid var(--accent); }
     </style>
 </head>
 <body>
@@ -51,12 +52,13 @@
     let userApiKey = "";
 
     function initSystem() {
-        userApiKey = document.getElementById('api-key').value;
-        if (userApiKey.length > 10) {
+        const key = document.getElementById('api-key').value;
+        if (key.length > 10) {
+            userApiKey = key;
             document.getElementById('ignition-gate').style.display = 'none';
             document.getElementById('core-engine').style.display = 'block';
         } else {
-            alert("IGNITION FAILED: KEY REQUIRED");
+            alert("IGNITION FAILED: KEY TOO SHORT");
         }
     }
 
@@ -73,18 +75,20 @@
         const intensity = document.getElementById('intensity').value;
         const output = document.getElementById('output-box');
         
-        output.innerText = "Processing via Grok Circuit...";
+        output.innerText = "Processing via Vercel Bridge...";
 
         try {
-            const response = await fetch('bridge.php', {
+            // Path change: /api/bridge (Vercel serverless function)
+            const response = await fetch('/api/bridge', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ key: userApiKey, text: text, intensity: intensity })
             });
+            
             const data = await response.json();
-            output.innerText = data.result;
+            output.innerText = data.result || "No response received.";
         } catch (error) {
-            output.innerText = "BRIDGE FAILED: Server-side connection error.";
+            output.innerText = "BRIDGE FAILED: Connection error. Check Vercel Logs.";
         }
     }
 </script>
