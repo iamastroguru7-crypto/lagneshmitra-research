@@ -3,94 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Humaniser Core | LagneshMitra</title>
+    <title>Under Development | LagneshMitra</title>
     <style>
-        :root { --bg: #0a0a0c; --accent: #3b82f6; --text: #e5e7eb; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; border: 1px solid #333; padding: 25px; border-radius: 8px; }
-        h2 { font-size: 1.2rem; text-align: center; margin-bottom: 20px; }
-        textarea, input[type="password"], button { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1e; border: 1px solid #444; color: white; box-sizing: border-box; }
-        button { background: var(--accent); border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { opacity: 0.8; }
-        button:disabled { background: #333; cursor: not-allowed; }
-        .analysis-box { display: flex; justify-content: space-between; padding: 10px; background: #111; border: 1px solid #333; margin: 10px 0; }
-        .score { text-align: center; font-size: 0.9rem; }
-        .score b { display: block; color: var(--accent); }
-        #output-box { margin-top: 20px; padding: 15px; border: 1px solid #222; background: #000; min-height: 80px; white-space: pre-wrap; font-size: 0.9rem; border-left: 3px solid var(--accent); }
+        body, html { 
+            height: 100%; margin: 0; 
+            background: #0a0a0c; color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            text-align: center; 
+        }
+        .container { padding: 40px; }
+        h1 { 
+            color: #ffd700; font-size: 3rem; 
+            letter-spacing: 4px; text-transform: uppercase; 
+            margin-bottom: 20px; 
+        }
+        p { color: #ccc; font-size: 1.2rem; max-width: 500px; line-height: 1.6; }
+        .divider { 
+            width: 50px; height: 3px; background: #ffd700; 
+            margin: 30px auto; 
+        }
+        .status { color: #00ff00; font-weight: bold; font-family: monospace; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>SYSTEM: HUMANISER ENGINE</h2>
-    
-    <div id="ignition-gate">
-        <input type="password" id="api-key" placeholder="INSERT GROK API KEY">
-        <button onclick="initSystem()">INITIALIZE ENGINE</button>
+    <div class="container">
+        <h1>LagneshMitra.in</h1>
+        <div class="divider"></div>
+        <p>We are developing something massive, designed to empower all the needfuls.</p>
+        <p>Your patience is appreciated. We will be back in a while.</p>
+        <br>
+        <div class="status">SYSTEM ARCHITECTURE UPGRADE IN PROGRESS...</div>
     </div>
-
-    <div id="core-engine" style="display:none;">
-        <textarea id="raw-input" rows="6" placeholder="PASTE RAW TEXT..."></textarea>
-        
-        <button onclick="runAudit()" style="background:#222; border:1px solid #444;">RUN AI AUDIT</button>
-        
-        <div class="analysis-box">
-            <div class="score">AI: <b id="ai-score">-</b>%</div>
-            <div class="score">HYB: <b id="hyb-score">-</b>%</div>
-            <div class="score">HUM: <b id="hum-score">-</b>%</div>
-        </div>
-        
-        <label>HUMANITY INTENSITY: <span id="val">100</span>%</label>
-        <input type="range" id="intensity" min="0" max="100" value="100" oninput="document.getElementById('val').innerText=this.value">
-        
-        <button id="convert-btn" onclick="processHumanise()" disabled>CONVERT TO HUMAN</button>
-        <div id="output-box">Waiting for input...</div>
-    </div>
-</div>
-
-<script>
-    let userApiKey = "";
-
-    function initSystem() {
-        const key = document.getElementById('api-key').value;
-        if (key.length > 10) {
-            userApiKey = key;
-            document.getElementById('ignition-gate').style.display = 'none';
-            document.getElementById('core-engine').style.display = 'block';
-        } else {
-            alert("IGNITION FAILED: KEY TOO SHORT");
-        }
-    }
-
-    function runAudit() {
-        const ai = Math.floor(Math.random() * 40) + 60;
-        document.getElementById('ai-score').innerText = ai;
-        document.getElementById('hyb-score').innerText = Math.floor((100 - ai) / 2);
-        document.getElementById('hum-score').innerText = 100 - ai - Math.floor((100 - ai) / 2);
-        document.getElementById('convert-btn').disabled = false;
-    }
-
-    async function processHumanise() {
-        const text = document.getElementById('raw-input').value;
-        const intensity = document.getElementById('intensity').value;
-        const output = document.getElementById('output-box');
-        
-        output.innerText = "Processing via Vercel Bridge...";
-
-        try {
-            // Path change: /api/bridge (Vercel serverless function)
-            const response = await fetch('/api/bridge', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ key: userApiKey, text: text, intensity: intensity })
-            });
-            
-            const data = await response.json();
-            output.innerText = data.result || "No response received.";
-        } catch (error) {
-            output.innerText = "BRIDGE FAILED: Connection error. Check Vercel Logs.";
-        }
-    }
-</script>
 </body>
 </html>
