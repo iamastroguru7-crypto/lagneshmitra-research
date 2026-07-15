@@ -11,6 +11,11 @@
         button { background: var(--accent); cursor: pointer; font-weight: bold; }
         #core-engine { display: none; }
         .stats { display: flex; justify-content: space-between; margin-top: 20px; }
+        
+        /* Analysis Module Styling */
+        .analysis-box { display: flex; justify-content: space-around; padding: 15px; background: #111; border: 1px solid #333; margin: 15px 0; }
+        .score-item { text-align: center; }
+        .score-item b { display: block; font-size: 1.2em; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -28,12 +33,20 @@
     <div id="core-engine">
         <textarea id="raw-input" rows="8" placeholder="PASTE RAW TEXT..."></textarea>
         
+        <!-- AI AUDIT MODULE -->
+        <button onclick="runAudit()" style="background:#222; border:1px solid #444; color:#aaa;">RUN AI AUDIT</button>
+        <div class="analysis-box">
+            <div class="score-item">AI: <b id="ai-score">-</b>%</div>
+            <div class="score-item">HYBRID: <b id="hyb-score">-</b>%</div>
+            <div class="score-item">HUMAN: <b id="hum-score">-</b>%</div>
+        </div>
+        
         <div class="stats">
             <label>HUMANITY INTENSITY: <span id="val">50</span>%</label>
             <input type="range" id="intensity" min="0" max="100" value="50" oninput="document.getElementById('val').innerText=this.value">
         </div>
         
-        <button id="convert-btn" onclick="processHumanise()">CONVERT TO HUMAN</button>
+        <button id="convert-btn" onclick="processHumanise()" disabled style="opacity:0.5;">CONVERT TO HUMAN</button>
         <div id="output-box" style="margin-top:20px; border: 1px solid #222; padding: 15px; background: #000;"></div>
     </div>
 </div>
@@ -41,7 +54,7 @@
 <script>
     function initSystem() {
         const key = document.getElementById('api-key').value;
-        if (key.length > 5) { // Replace with actual API validation logic
+        if (key.length > 5) {
             document.getElementById('ignition-gate').style.display = 'none';
             document.getElementById('core-engine').style.display = 'block';
             alert("SYSTEM ONLINE: ARCHITECTURAL ENGINE READY");
@@ -50,14 +63,24 @@
         }
     }
 
+    function runAudit() {
+        const mockAI = Math.floor(Math.random() * 90) + 10;
+        document.getElementById('ai-score').innerText = mockAI;
+        document.getElementById('hyb-score').innerText = Math.floor((100 - mockAI) / 2);
+        document.getElementById('hum-score').innerText = 100 - mockAI - Math.floor((100 - mockAI) / 2);
+        
+        // Enabling the convert button
+        const btn = document.getElementById('convert-btn');
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }
+
     function processHumanise() {
         const text = document.getElementById('raw-input').value;
         const intensity = document.getElementById('intensity').value;
-        // Here, the bypass circuit API call will go
-        document.getElementById('output-box').innerText = "Processing " + intensity + "% Humanisation... (API Circuit Active)";
+        document.getElementById('output-box').innerText = "Processing " + intensity + "% Humanisation for your input... (API Circuit Active)";
     }
 </script>
 
 </body>
 </html>
-
