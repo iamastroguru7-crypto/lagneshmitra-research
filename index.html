@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Engine 9.1 | Humaniser Beast</title>
+    <title>Engine 9.2 | Humaniser Beast</title>
     <style>
         body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #0a0a0c; color: #fff; font-family: monospace; }
         .main-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
-        #menu-icon { cursor: pointer; font-size: 20px; margin-bottom: 5px; }
+        #menu-icon { cursor: pointer; font-size: 15px; margin-bottom: 5px; color: #ffd700; }
         #output { height: 40%; width: 100%; background: rgba(0,0,0,0.8); color: #00ff00; border: 2px solid #ffd700; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 10px; box-sizing: border-box; font-size: 14px; }
         .audit-box { display: flex; justify-content: space-between; padding: 10px; background: #111; border: 1px solid #444; margin-bottom: 10px; border-radius: 10px; }
         .score { text-align: center; font-size: 0.8rem; color: #ffd700; }
@@ -70,24 +70,22 @@
                 headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{ 
-                        role: "system", 
-                        content: `Rewrite the following text to be ${intensity}% more natural and human-like. Keep the tone authentic.` 
-                    },
-                    { role: "user", content: q }]
+                    messages: [
+                        { role: "system", content: `You are an expert humanizer. Rewrite this to be ${intensity}% natural and human-like.` },
+                        { role: "user", content: q }
+                    ]
                 })
             });
             
             const data = await res.json();
             
-            // ERROR HANDLING LOGIC
-            if (data.error) {
-                out.innerText = "API ERROR: " + data.error.message;
-            } else if (data.choices && data.choices[0] && data.choices[0].message) {
+            // Checking if response is valid
+            if (data && data.choices && data.choices.length > 0) {
                 out.innerText = data.choices[0].message.content;
+            } else if (data.error) {
+                out.innerText = "API ERROR: " + data.error.message;
             } else {
-                out.innerText = "SYSTEM ERROR: Unexpected format.";
-                console.log(data); // Debugging ke liye console mein check kar
+                out.innerText = "RESPONSE ERROR: " + JSON.stringify(data);
             }
         } catch (e) { 
             out.innerText = "NETWORK ERROR: " + e.message; 
