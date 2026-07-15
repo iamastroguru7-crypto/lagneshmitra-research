@@ -1,0 +1,10 @@
+{
+  "name": "humaniser-engine",
+  "version": "1.0.0",
+  "description": "Grok-powered humaniser",
+  "main": "index.html",
+  "engines": {
+    "node": "18.x"
+  }
+}
+
