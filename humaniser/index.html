@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Humaniser Core | LagneshMitra</title>
     <style>
         :root { --bg: #0a0a0c; --accent: #3b82f6; --text: #e5e7eb; }
         body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; border: 1px solid #333; padding: 30px; border-radius: 8px; }
-        input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1e; border: 1px solid #444; color: white; box-sizing: border-box; }
-        button { background: var(--accent); cursor: pointer; font-weight: bold; border: none; }
-        button:disabled { background: #444; cursor: not-allowed; }
-        #core-engine { display: none; }
-        .stats { margin: 20px 0; }
-        .analysis-box { display: flex; justify-content: space-around; padding: 15px; background: #111; border: 1px solid #333; margin: 15px 0; }
-        .score-item { text-align: center; }
-        .score-item b { display: block; font-size: 1.2em; color: var(--accent); }
+        .container { max-width: 600px; margin: auto; border: 1px solid #333; padding: 25px; border-radius: 8px; }
+        h2 { font-size: 1.2rem; text-align: center; margin-bottom: 20px; }
+        textarea, input[type="password"], button { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1e; border: 1px solid #444; color: white; box-sizing: border-box; }
+        button { background: var(--accent); border: none; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #333; cursor: not-allowed; }
+        .analysis-box { display: flex; justify-content: space-between; padding: 10px; background: #111; border: 1px solid #333; margin: 10px 0; }
+        .score { text-align: center; font-size: 0.9rem; }
+        .score b { display: block; color: var(--accent); }
+        #output-box { margin-top: 20px; padding: 15px; border: 1px solid #222; background: #000; min-height: 80px; white-space: pre-wrap; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -27,24 +28,22 @@
         <button onclick="initSystem()">INITIALIZE ENGINE</button>
     </div>
 
-    <div id="core-engine">
-        <textarea id="raw-input" rows="8" placeholder="PASTE RAW TEXT..."></textarea>
+    <div id="core-engine" style="display:none;">
+        <textarea id="raw-input" rows="6" placeholder="PASTE RAW TEXT..."></textarea>
         
-        <button onclick="runAudit()" style="background:#222; border:1px solid #444; color:#aaa;">RUN AI AUDIT</button>
+        <button onclick="runAudit()" style="background:#222; border:1px solid #444;">RUN AI AUDIT</button>
         
         <div class="analysis-box">
-            <div class="score-item">AI: <b id="ai-score">-</b>%</div>
-            <div class="score-item">HYBRID: <b id="hyb-score">-</b>%</div>
-            <div class="score-item">HUMAN: <b id="hum-score">-</b>%</div>
+            <div class="score">AI: <b id="ai-score">-</b>%</div>
+            <div class="score">HYB: <b id="hyb-score">-</b>%</div>
+            <div class="score">HUM: <b id="hum-score">-</b>%</div>
         </div>
         
-        <div class="stats">
-            <label>HUMANITY INTENSITY: <span id="val">50</span>%</label>
-            <input type="range" id="intensity" min="0" max="100" value="50" oninput="document.getElementById('val').innerText=this.value">
-        </div>
+        <label>HUMANITY INTENSITY: <span id="val">100</span>%</label>
+        <input type="range" id="intensity" min="0" max="100" value="100" oninput="document.getElementById('val').innerText=this.value">
         
         <button id="convert-btn" onclick="processHumanise()" disabled>CONVERT TO HUMAN</button>
-        <div id="output-box" style="margin-top:20px; border: 1px solid #222; padding: 15px; background: #000; min-height: 50px;"></div>
+        <div id="output-box">Waiting for input...</div>
     </div>
 </div>
 
@@ -57,16 +56,15 @@
             document.getElementById('ignition-gate').style.display = 'none';
             document.getElementById('core-engine').style.display = 'block';
         } else {
-            alert("IGNITION FAILED: INVALID KEY");
+            alert("IGNITION FAILED: KEY REQUIRED");
         }
     }
 
     function runAudit() {
-        const mockAI = Math.floor(Math.random() * 60) + 30;
-        document.getElementById('ai-score').innerText = mockAI;
-        document.getElementById('hyb-score').innerText = Math.floor((100 - mockAI) / 2);
-        document.getElementById('hum-score').innerText = 100 - mockAI - Math.floor((100 - mockAI) / 2);
-        
+        const ai = Math.floor(Math.random() * 40) + 60;
+        document.getElementById('ai-score').innerText = ai;
+        document.getElementById('hyb-score').innerText = Math.floor((100 - ai) / 2);
+        document.getElementById('hum-score').innerText = 100 - ai - Math.floor((100 - ai) / 2);
         document.getElementById('convert-btn').disabled = false;
     }
 
@@ -75,7 +73,7 @@
         const intensity = document.getElementById('intensity').value;
         const output = document.getElementById('output-box');
         
-        output.innerText = "CONNECTING TO GROK CIRCUIT...";
+        output.innerText = "Processing via Grok Circuit...";
 
         try {
             const response = await fetch('bridge.php', {
@@ -83,11 +81,10 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ key: userApiKey, text: text, intensity: intensity })
             });
-            
             const data = await response.json();
-            output.innerText = data.result || "ERROR: NO RESPONSE FROM ENGINE";
+            output.innerText = data.result;
         } catch (error) {
-            output.innerText = "CRITICAL ERROR: BRIDGE CONNECTION FAILED.";
+            output.innerText = "BRIDGE FAILED: Server-side connection error.";
         }
     }
 </script>
