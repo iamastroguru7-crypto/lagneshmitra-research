@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Engine 9.0 | Humaniser Beast</title>
+    <title>Engine 9.1 | Humaniser Beast</title>
     <style>
         body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #0a0a0c; color: #fff; font-family: monospace; }
         .main-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
         #menu-icon { cursor: pointer; font-size: 20px; margin-bottom: 5px; }
-        #output { height: 40%; width: 100%; background: rgba(0,0,0,0.8); color: #00ff00; border: 2px solid #ffd700; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 10px; box-sizing: border-box; }
+        #output { height: 40%; width: 100%; background: rgba(0,0,0,0.8); color: #00ff00; border: 2px solid #ffd700; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 10px; box-sizing: border-box; font-size: 14px; }
         .audit-box { display: flex; justify-content: space-between; padding: 10px; background: #111; border: 1px solid #444; margin-bottom: 10px; border-radius: 10px; }
         .score { text-align: center; font-size: 0.8rem; color: #ffd700; }
         textarea { width: 100%; height: 12%; background: rgba(0,0,0,0.7); color: #fff; border: 2px solid #ffd700; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-bottom: 5px; }
-        .controls { display: flex; flex-direction: column; gap: 5px; }
-        button { width: 100%; height: 8%; background: #ffd700; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 5px; }
+        button { width: 100%; height: 8%; background: #ffd700; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 5px; color: #000; }
+        button:disabled { background: #555; color: #ccc; }
     </style>
 </head>
 <body>
@@ -60,6 +60,8 @@
         const intensity = document.getElementById('val').innerText;
         
         if (!apiKey) { alert("API Key missing!"); return; }
+        if (!q) { alert("Input field empty!"); return; }
+        
         out.innerText = "Processing Beast Mode (" + intensity + "%)...";
         
         try {
@@ -75,9 +77,21 @@
                     { role: "user", content: q }]
                 })
             });
+            
             const data = await res.json();
-            out.innerText = data.choices[0].message.content;
-        } catch (e) { out.innerText = "Error: " + e.message; }
+            
+            // ERROR HANDLING LOGIC
+            if (data.error) {
+                out.innerText = "API ERROR: " + data.error.message;
+            } else if (data.choices && data.choices[0] && data.choices[0].message) {
+                out.innerText = data.choices[0].message.content;
+            } else {
+                out.innerText = "SYSTEM ERROR: Unexpected format.";
+                console.log(data); // Debugging ke liye console mein check kar
+            }
+        } catch (e) { 
+            out.innerText = "NETWORK ERROR: " + e.message; 
+        }
     }
 </script>
 </body>
