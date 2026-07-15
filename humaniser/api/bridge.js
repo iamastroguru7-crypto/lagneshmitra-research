@@ -1,33 +1,30 @@
+// api/bridge.js
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ result: 'Method Not Allowed' });
 
-    const { key, text, intensity } = req.body;
+    const { text } = req.body;
+    
+    // API Key backend se fetch hogi (Security!)
+    const apiKey = process.env.GROQ_API_KEY; 
 
     try {
-        // Groq API Endpoint for Llama 3 / Versatile models
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${key}`
+                "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "llama3-70b-8192", // Use your versatile model name here
+                model: "llama-3.3-70b-versatile",
                 messages: [
-                    { "role": "system", "content": `Rewrite this to be ${intensity}% more natural.` },
+                    { "role": "system", "content": "Ruthless data analysis only. No fluff." },
                     { "role": "user", "content": text }
-                ],
-                temperature: 0.7
+                ]
             })
         });
 
         const data = await response.json();
-
-        if (data.choices && data.choices[0]) {
-            return res.status(200).json({ result: data.choices[0].message.content });
-        } else {
-            return res.status(500).json({ result: "API Error: " + JSON.stringify(data) });
-        }
+        return res.status(200).json({ result: data.choices[0].message.content });
     } catch (error) {
         return res.status(500).json({ result: "Bridge Error: " + error.message });
     }
