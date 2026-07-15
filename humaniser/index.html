@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Humaniser Core | LagneshMitra</title>
+    <style>
+        :root { --bg: #0a0a0c; --accent: #3b82f6; --text: #e5e7eb; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; border: 1px solid #333; padding: 30px; border-radius: 8px; }
+        input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1e; border: 1px solid #444; color: white; }
+        button { background: var(--accent); cursor: pointer; font-weight: bold; }
+        #core-engine { display: none; }
+        .stats { display: flex; justify-content: space-between; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>SYSTEM: HUMANISER ENGINE</h2>
+    
+    <!-- IGNITION GATE -->
+    <div id="ignition-gate">
+        <input type="password" id="api-key" placeholder="INSERT IGNITION KEY (API KEY)">
+        <button onclick="initSystem()">INITIALIZE ENGINE</button>
+    </div>
+
+    <!-- CORE INTERFACE -->
+    <div id="core-engine">
+        <textarea id="raw-input" rows="8" placeholder="PASTE RAW TEXT..."></textarea>
+        
+        <div class="stats">
+            <label>HUMANITY INTENSITY: <span id="val">50</span>%</label>
+            <input type="range" id="intensity" min="0" max="100" value="50" oninput="document.getElementById('val').innerText=this.value">
+        </div>
+        
+        <button id="convert-btn" onclick="processHumanise()">CONVERT TO HUMAN</button>
+        <div id="output-box" style="margin-top:20px; border: 1px solid #222; padding: 15px; background: #000;"></div>
+    </div>
+</div>
+
+<script>
+    function initSystem() {
+        const key = document.getElementById('api-key').value;
+        if (key.length > 5) { // Replace with actual API validation logic
+            document.getElementById('ignition-gate').style.display = 'none';
+            document.getElementById('core-engine').style.display = 'block';
+            alert("SYSTEM ONLINE: ARCHITECTURAL ENGINE READY");
+        } else {
+            alert("IGNITION FAILED: KEY REQUIRED");
+        }
+    }
+
+    function processHumanise() {
+        const text = document.getElementById('raw-input').value;
+        const intensity = document.getElementById('intensity').value;
+        // Here, the bypass circuit API call will go
+        document.getElementById('output-box').innerText = "Processing " + intensity + "% Humanisation... (API Circuit Active)";
+    }
+</script>
+
+</body>
+</html>
+
