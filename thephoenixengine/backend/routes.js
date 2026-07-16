@@ -2,7 +2,7 @@
 =========================================================
 ThePhoenixEngine
 File        : routes.js
-Version     : 1.0.0
+Version     : 1.1.0
 Developer   : LagneshMitra
 =========================================================
 API Routes
@@ -12,8 +12,9 @@ API Routes
 "use strict";
 
 const express = require("express");
-
 const router = express.Router();
+
+const groq = require("./groq");
 
 /* ============================================
    Root API
@@ -37,17 +38,37 @@ router.get("/", (req, res) => {
    Health Check
 ============================================ */
 
-router.get("/health", (req, res) => {
+router.get("/health", async (req, res) => {
 
-    res.json({
+    try {
 
-        success: true,
+        const health = await groq.healthCheck();
 
-        status: "healthy",
+        res.json({
 
-        timestamp: new Date().toISOString()
+            success: true,
 
-    });
+            engine: "ThePhoenixEngine",
+
+            groq: health,
+
+            timestamp: new Date().toISOString()
+
+        });
+
+    }
+
+    catch (error) {
+
+        res.status(500).json({
+
+            success: false,
+
+            error: error.message
+
+        });
+
+    }
 
 });
 
@@ -57,67 +78,69 @@ router.get("/health", (req, res) => {
 
 router.post("/humanise", async (req, res) => {
 
-    try{
+    try {
 
         const {
 
             text,
 
-            mode,
+            mode = "STANDARD",
 
-            provider,
+            provider = "groq",
 
             model
 
         } = req.body;
 
-        if(!text){
+        if (!text || text.trim() === "") {
 
             return res.status(400).json({
 
-                success:false,
+                success: false,
 
-                error:"Input text required."
+                error: "Input text required."
 
             });
 
         }
 
-        /*
+        const prompt =
 
-        Groq Engine
+`You are ThePhoenixEngine Humaniser.
 
-        Will connect here
+Rewrite the supplied text naturally.
 
-        */
+Requirements:
 
-        return res.json({
+- Preserve meaning.
+- Improve readability.
+- Remove robotic wording.
+- Improve sentence flow.
+- Return only rewritten text.`;
 
-            success:true,
+        const result = await groq.generate({
 
-            message:"Humaniser route active.",
+            prompt,
 
-            received:{
+            text,
 
-                mode,
-
-                provider,
-
-                model
-
-            }
+            model
 
         });
 
+        return res.json(result);
+
     }
 
-    catch(error){
+    catch (error) {
+
+        console.error(error);
 
         return res.status(500).json({
 
-            success:false,
+            success: false,
 
-            error:error.message
+            error: error.message
 
         });
 
@@ -129,21 +152,21 @@ router.post("/humanise", async (req, res) => {
    Analyzer
 ============================================ */
 
-router.post("/analyze",(req,res)=>{
+router.post("/analyze", (req, res) => {
 
-    const {
+    const { text = "" } = req.body;
 
-        text
+    res.json({
 
-    } = req.body;
+        success: true,
 
-    return res.json({
+        message: "Analyzer Route Ready",
 
-        success:true,
+        characters: text.length,
 
-        message:"Analyzer Route Ready",
+        words: text.trim() === "" ? 0 : text.trim().split(/\s+/).length,
 
-        characters:text?text.length:0
+        paragraphs: text.trim() === "" ? 0 : text.trim().split(/\n+/).length
 
     });
 
@@ -153,13 +176,13 @@ router.post("/analyze",(req,res)=>{
    Billing Placeholder
 ============================================ */
 
-router.get("/billing",(req,res)=>{
+router.get("/billing", (req, res) => {
 
     res.json({
 
-        success:true,
+        success: true,
 
-        message:"Billing Module Coming Soon"
+        message: "Billing Module Coming Soon"
 
     });
 
@@ -169,13 +192,13 @@ router.get("/billing",(req,res)=>{
    License Placeholder
 ============================================ */
 
-router.get("/license",(req,res)=>{
+router.get("/license", (req, res) => {
 
     res.json({
 
-        success:true,
+        success: true,
 
-        message:"License Module Coming Soon"
+        message: "License Module Coming Soon"
 
     });
 
@@ -185,13 +208,29 @@ router.get("/license",(req,res)=>{
    Enterprise Placeholder
 ============================================ */
 
-router.get("/enterprise",(req,res)=>{
+router.get("/enterprise", (req, res) => {
 
     res.json({
 
-        success:true,
+        success: true,
 
-        message:"Enterprise Module Coming Soon"
+        message: "Enterprise Module Coming Soon"
+
+    });
+
+});
+
+/* ============================================
+   Available Models
+============================================ */
+
+router.get("/models", (req, res) => {
+
+    res.json({
+
+        success: true,
+
+        models: groq.availableModels()
 
     });
 
