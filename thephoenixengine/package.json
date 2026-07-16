@@ -1,0 +1,25 @@
+{
+  "name": "thephoenixengine",
+  "version": "1.0.0",
+  "description": "ThePhoenixEngine AI Humaniser",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "keywords": [
+    "ai",
+    "humaniser",
+    "groq",
+    "llama",
+    "thephoenixengine"
+  ],
+  "author": "LagneshMitra",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "groq-sdk": "^0.15.0"
+  }
+}
