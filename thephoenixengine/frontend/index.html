@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+ThePhoenixEngine Professional Humaniser
+</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body class="dark">
+
+<!-- Loader -->
+
+<div
+class="loader"
+id="loader">
+
+Processing...
+
+</div>
+
+<!-- Toast -->
+
+<div
+class="toast"
+id="toast">
+
+Ready
+
+</div>
+
+<!-- Progress -->
+
+<div
+class="progress">
+
+<div
+class="progress-bar"
+id="progressBar">
+
+</div>
+
+</div>
+
+<div class="container">
+
+<header>
+
+<div>
+
+<h1 class="logo">
+
+ThePhoenixEngine
+
+</h1>
+
+<div class="version">
+
+Enterprise Humaniser v1.0
+
+</div>
+
+</div>
+
+<div>
+
+<button
+class="primary"
+onclick="UI.toggleTheme()">
+
+Toggle Theme
+
+</button>
+
+</div>
+
+</header>
+
+<div class="grid">
+
+<!-- LEFT PANEL -->
+
+<div
+class="glass">
+
+<div
+class="card-title">
+
+Input Text
+
+</div>
+
+<textarea
+
+id="inputText"
+
+placeholder="Paste AI generated content here...">
+
+</textarea>
+
+<select id="mode">
+
+<option value="STANDARD">
+
+Standard
+
+</option>
+
+<option value="PROFESSIONAL">
+
+Professional
+
+</option>
+
+<option value="ACADEMIC">
+
+Academic
+
+</option>
+
+<option value="BLOG">
+
+Blog
+
+</option>
+
+<option value="TECHNICAL">
+
+Technical
+
+</option>
+
+<option value="STORY">
+
+Story
+
+</option>
+
+<option value="REDDIT">
+
+Reddit
+
+</option>
+
+<!-- RIGHT PANEL -->
+
+<div class="glass">
+
+<div class="card-title">
+
+Humanised Output
+
+</div>
+
+<textarea
+
+id="outputText"
+
+placeholder="Humanised output will appear here..."
+
+readonly>
+
+</textarea>
+
+<br><br>
+
+<button
+
+id="copyBtn"
+
+class="primary">
+
+Copy
+
+</button>
+
+<button
+
+id="exportBtn"
+
+class="warning">
+
+Export TXT
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Statistics -->
+
+<div class="glass">
+
+<div class="card-title">
+
+Writing Statistics
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+
+<h2 id="words">
+
+0
+
+</h2>
+
+<p>
+
+Words
+
+</p>
+
+</div>
+
+<div class="stat">
+
+<h2 id="sentences">
+
+0
+
+</h2>
+
+<p>
+
+Sentences
+
+</p>
+
+</div>
+
+<div class="stat">
+
+<h2 id="paragraphs">
+
+0
+
+</h2>
+
+<p>
+
+Paragraphs
+
+</p>
+
+</div>
+
+<div class="stat">
+
+<h2 id="score">
+
+0
+
+</h2>
+
+<p>
+
+Score
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Bulk Humaniser -->
+
+<div class="glass">
+
+<div class="card-title">
+
+Bulk Humaniser
+
+</div>
+
+<input
+
+type="file"
+
+id="bulkFiles"
+
+multiple>
+
+<br><br>
+
+<button
+
+class="success"
+
+onclick="document.getElementById('bulkFiles').click()">
+
+Choose Files
+
+</button>
+
+<button
+
+class="primary"
+
+onclick="Bulk.process(document.getElementById('mode').value)">
+
+Run Bulk Humaniser
+
+</button>
+
+<button
+
+class="warning"
+
+onclick="Bulk.export()">
+
+Export Results
+
+</button>
+
+</div>
+
+<!-- Status -->
+
+<div class="glass">
+
+<div class="card-title">
+
+Engine Status
+
+</div>
+
+<p>
+
+Engine :
+
+<strong>
+
+Online
+
+</strong>
+
+</p>
+
+<p>
+
+Provider :
+
+<strong>
+
+Groq
+
+</strong>
+
+</p>
+
+<p>
+
+Model :
+
+<strong>
+
+llama-3.3-70b-versatile
+
+</strong>
+
+</p>
+
+<p>
+
+Version :
+
+<strong>
+
+1.0.0
+
+</strong>
+
+</p>
+
+<p>
+
+Status :
+
+<strong
+
+id="status">
+
+Ready
+
+</strong>
+
+</p>
+
+</div>
+
+<footer>
+
+ThePhoenixEngine © 2026
+
+Developed by LagneshMitra
+
+</footer>
+
+</div>
+
+<!-- JavaScript -->
+
+<script src="config.js"></script>
+
+<script src="utils.js"></script>
+
+<script src="prompts.js"></script>
+
+<script src="analyzer.js"></script>
+
+<script src="humaniser.js"></script>
+
+<script src="bulk.js"></script>
+
+<script src="ui.js"></script>
+
+<script src="app.js"></script>
+
+<script>
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+()=>{
+
+UI.init();
+
+App.init();
+
+Humaniser.loadHistory();
+
+log(
+
+"ThePhoenixEngine Ready",
+
+"success"
+
+);
+
+});
+
+document
+
+.getElementById(
+
+"bulkFiles"
+
+)
+
+.addEventListener(
+
+"change",
+
+function(){
+
+Bulk.clear();
+
+for(
+
+const file
+
+of
+
+this.files
+
+){
+
+Bulk.add(file);
+
+}
+
+UI.showToast(
+
+this.files.length+
+
+" file(s) added."
+
+);
+
+}
+
+);
+
+document
+
+.getElementById(
+
+"inputText"
+
+)
+
+.addEventListener(
+
+"input",
+
+function(){
+
+const result=
+
+analyseText(
+
+this.value
+
+);
+
+document
+
+.getElementById(
+
+"words"
+
+).innerText=
+
+result.words;
+
+document
+
+.getElementById(
+
+"sentences"
+
+).innerText=
+
+result.sentences;
+
+document
+
+.getElementById(
+
+"paragraphs"
+
+).innerText=
+
+result.paragraphs;
+
+document
+
+.getElementById(
+
+"score"
+
+).innerText=
+
+result.score;
+
+}
+
+);
+
+</script>
+
+</body>
+
+</html>
