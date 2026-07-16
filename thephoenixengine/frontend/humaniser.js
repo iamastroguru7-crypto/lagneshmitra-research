@@ -2,7 +2,7 @@
 =========================================================
 ThePhoenixEngine
 File        : humaniser.js
-Version     : 1.0.0
+Version     : 1.1.0
 Developer   : LagneshMitra
 =========================================================
 Humaniser Engine
@@ -12,7 +12,7 @@ Humaniser Engine
 "use strict";
 
 /* ============================================
-   Humaniser Class
+   Humaniser Object
 ============================================ */
 
 const Humaniser = {
@@ -23,8 +23,16 @@ const Humaniser = {
 
     apiEndpoint: "/humanise",
 
+    history: [],
+
+    version: "1.1.0",
+
+    retries: 3,
+
+    timeoutValue: TPE_CONFIG.REQUEST_TIMEOUT,
+
     /* ============================================
-       Humanise
+       Run
     ============================================ */
 
     async run(text, mode = "STANDARD") {
@@ -43,7 +51,7 @@ const Humaniser = {
 
         try {
 
-            const response = await this.sendRequest(text, mode);
+            const response = await this.execute(text, mode);
 
             this.isRunning = false;
 
@@ -71,9 +79,9 @@ const Humaniser = {
 
         const payload = {
 
-            mode: mode,
+            mode,
 
-            text: text,
+            text,
 
             provider: TPE_CONFIG.DEFAULT_PROVIDER,
 
@@ -107,7 +115,7 @@ const Humaniser = {
 
             throw new Error(
 
-                "Server Error : " +
+                "HTTP " +
 
                 response.status
 
@@ -115,9 +123,297 @@ const Humaniser = {
 
         }
 
-        const data = await response.json();
+        return await response.json();
 
-        return data;
+    },
+
+    /* ============================================
+       Timeout
+    ============================================ */
+
+    timeout(ms = TPE_CONFIG.REQUEST_TIMEOUT){
+
+        return new Promise((_, reject)=>{
+
+            setTimeout(()=>{
+
+                reject(
+
+                    new Error(
+
+                        "Request Timeout"
+
+                    )
+
+                );
+
+            }, ms);
+
+        });
+
+    },
+
+    /* ============================================
+       Execute
+    ============================================ */
+
+    async execute(text, mode){
+
+        const response =
+
+        await Promise.race([
+
+            this.sendRequest(text, mode),
+
+            this.timeout()
+
+        ]);
+
+        return this.process(response);
+
+    },
+
+       /* ============================================
+       Process Response
+    ============================================ */
+
+    process(response){
+
+        if(!response){
+
+            return{
+
+                success:false,
+
+                error:"Empty response."
+
+            };
+
+        }
+
+        if(response.success===false){
+
+            return response;
+
+        }
+
+        this.addHistory(
+
+            response.output
+
+        );
+
+        return{
+
+            success:true,
+
+            provider:
+
+            response.provider ||
+
+            "Groq",
+
+            model:
+
+            response.model ||
+
+            TPE_CONFIG.DEFAULT_MODEL,
+
+            output:
+
+            response.output ||
+
+            "",
+
+            usage:
+
+            response.usage ||
+
+            {}
+
+        };
+
+    },
+
+    /* ============================================
+       Retry Engine
+    ============================================ */
+
+    async retry(text, mode){
+
+        let attempt = 0;
+
+        while(attempt < this.retries){
+
+            try{
+
+                const result =
+
+                await this.execute(
+
+                    text,
+
+                    mode
+
+                );
+
+                if(result.success){
+
+                    return result;
+
+                }
+
+            }
+
+            catch(error){
+
+                log(
+
+                    "Retry " +
+
+                    (attempt + 1),
+
+                    "warning"
+
+                );
+
+            }
+
+            attempt++;
+
+            await sleep(1000);
+
+        }
+
+        return{
+
+            success:false,
+
+            error:
+
+            "Maximum retry limit reached."
+
+        };
+
+    },
+
+    /* ============================================
+       Humanise
+    ============================================ */
+
+    async humanise(text, mode){
+
+        return await this.retry(
+
+            text,
+
+            mode
+
+        );
+
+    },
+
+    /* ============================================
+       History
+    ============================================ */
+
+    addHistory(output){
+
+        this.history.unshift({
+
+            id: uuid(),
+
+            created: timestamp(),
+
+            output
+
+        });
+
+        if(this.history.length > 100){
+
+            this.history.pop();
+
+        }
+
+    },
+
+    getHistory(){
+
+        return this.history;
+
+    },
+
+    clearHistory(){
+
+        this.history = [];
+
+    },
+
+       /* ============================================
+       Copy Output
+    ============================================ */
+
+    async copy(output){
+
+        return await copyText(output);
+
+    },
+
+    /* ============================================
+       Download TXT
+    ============================================ */
+
+    exportTXT(filename, output){
+
+        downloadTXT(filename, output);
+
+    },
+
+    /* ============================================
+       Save History
+    ============================================ */
+
+    saveHistory(){
+
+        saveStorage(
+
+            TPE_CONFIG.STORAGE.HISTORY,
+
+            this.history
+
+        );
+
+    },
+
+    /* ============================================
+       Load History
+    ============================================ */
+
+    loadHistory(){
+
+        const history = loadStorage(
+
+            TPE_CONFIG.STORAGE.HISTORY
+
+        );
+
+        if(history){
+
+            this.history = history;
+
+        }
+
+    },
+
+    /* ============================================
+       Reset
+    ============================================ */
+
+    reset(){
+
+        this.isRunning = false;
+
+        this.currentMode = "STANDARD";
 
     },
 
@@ -125,11 +421,17 @@ const Humaniser = {
        Cancel
     ============================================ */
 
-    cancel() {
+    cancel(){
 
         this.isRunning = false;
 
-        log("Humaniser Cancelled", "warning");
+        log(
+
+            "Humaniser Cancelled",
+
+            "warning"
+
+        );
 
     }
 
@@ -139,14 +441,38 @@ const Humaniser = {
    Public Function
 ============================================ */
 
-async function humaniseText(text, mode = "STANDARD") {
+async function humaniseText(
 
-    return await Humaniser.run(text, mode);
+    text,
+
+    mode = "STANDARD"
+
+){
+
+    return await Humaniser.humanise(
+
+        text,
+
+        mode
+
+    );
 
 }
+
+/* ============================================
+   Initialize
+============================================ */
+
+Humaniser.loadHistory();
 
 /* ============================================
    Startup
 ============================================ */
 
-log("Humaniser Engine Loaded", "success");
+log(
+
+    "ThePhoenixEngine Humaniser v1.1 Loaded",
+
+    "success"
+
+);
