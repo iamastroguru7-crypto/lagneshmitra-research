@@ -2,7 +2,7 @@
 =========================================================
 ThePhoenixEngine
 File        : server.js
-Version     : 1.0.0
+Version     : 1.1.0
 Developer   : LagneshMitra
 =========================================================
 Backend Server
@@ -18,10 +18,8 @@ Backend Server
 require("dotenv").config();
 
 const express = require("express");
-
 const cors = require("cors");
-
-const path = require("path");
+const routes = require("./routes");
 
 /* ============================================
    Create App
@@ -34,7 +32,6 @@ const app = express();
 ============================================ */
 
 const PORT = process.env.PORT || 3000;
-
 const API_VERSION = process.env.API_VERSION || "v1";
 
 /* ============================================
@@ -43,7 +40,9 @@ const API_VERSION = process.env.API_VERSION || "v1";
 
 app.use(cors());
 
-app.use(express.json({ limit: "25mb" }));
+app.use(express.json({
+    limit: "25mb"
+}));
 
 app.use(express.urlencoded({
     extended: true,
@@ -59,7 +58,7 @@ app.use((req, res, next) => {
     const now = new Date().toISOString();
 
     console.log(
-        `[${now}] ${req.method} ${req.url}`
+        `[${now}] ${req.method} ${req.originalUrl}`
     );
 
     next();
@@ -67,7 +66,7 @@ app.use((req, res, next) => {
 });
 
 /* ============================================
-   Health Check
+   Root
 ============================================ */
 
 app.get("/", (req, res) => {
@@ -78,7 +77,7 @@ app.get("/", (req, res) => {
 
         engine: "ThePhoenixEngine",
 
-        version: "1.0.0",
+        version: "1.1.0",
 
         status: "Running"
 
@@ -87,100 +86,10 @@ app.get("/", (req, res) => {
 });
 
 /* ============================================
-   API Status
+   API Routes
 ============================================ */
 
-app.get(`/api/${API_VERSION}`, (req, res) => {
-
-    res.json({
-
-        success: true,
-
-        message: "API Online",
-
-        version: API_VERSION
-
-    });
-
-});
-
-/* ============================================
-   Humaniser Endpoint
-============================================ */
-
-app.post(`/api/${API_VERSION}/humanise`, async (req, res) => {
-
-    try {
-
-        const {
-
-            text,
-
-            mode,
-
-            provider,
-
-            model
-
-        } = req.body;
-
-        if (!text) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                error: "Input text missing."
-
-            });
-
-        }
-
-        /*
-
-        Groq Engine
-
-        Will be connected
-
-        in groq.js
-
-        */
-
-        return res.json({
-
-            success: true,
-
-            message: "Humaniser endpoint ready.",
-
-            received: {
-
-                mode,
-
-                provider,
-
-                model
-
-            }
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-
-            success: false,
-
-            error: error.message
-
-        });
-
-    }
-
-});
+app.use(`/api/${API_VERSION}`, routes);
 
 /* ============================================
    404
@@ -224,15 +133,12 @@ app.listen(PORT, () => {
 
     console.log("");
 
-    console.log("================================");
-
+    console.log("====================================");
     console.log("ThePhoenixEngine Started");
-
     console.log("Port :", PORT);
-
-    console.log("API :", API_VERSION);
-
-    console.log("================================");
+    console.log("API Version :", API_VERSION);
+    console.log("Environment :", process.env.NODE_ENV);
+    console.log("====================================");
 
     console.log("");
 
