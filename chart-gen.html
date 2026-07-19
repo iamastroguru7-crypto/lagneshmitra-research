@@ -18,7 +18,7 @@
     <input type="time" id="tob" value="00:00">
     <input type="text" id="pob" value="London">
     <button onclick="generateInsight()">Generate Report</button>
-    <div id="output">Waiting for data...</div>
+    <div id="output">Result will appear here...</div>
 </div>
 
 <script>
@@ -28,20 +28,16 @@ async function generateInsight() {
     const tob = document.getElementById('tob').value;
     const loc = document.getElementById('pob').value;
     
-    output.innerHTML = "Fetching...";
+    output.innerHTML = "Fetching data...";
 
     try {
-        // Ab hum local api route ko call kar rahe hain (No CORS!)
         const response = await fetch(`/api/get-data?dob=${dob}&tob=${tob}&loc=${loc}`);
         const data = await response.json();
         
-        if (data.Status === "Success") {
-            output.innerHTML = `<strong>Planet Info (Sun):</strong><br> ${data.Payload}`;
-        } else {
-            output.innerHTML = `<span style="color:red">Error: ${data.Message || "Something went wrong"}</span>`;
-        }
+        // Pura data stringify karke dikha rahe hain taaki structure pata chale
+        output.innerHTML = `<strong>Response:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`;
     } catch(e) {
-        output.innerHTML = `<span style="color:red">Connection Error: ${e.message}</span>`;
+        output.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
     }
 }
 </script>
