@@ -2,8 +2,9 @@ export default async function handler(req, res) {
     const { dob, tob, loc } = req.query;
     const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
     
-    // Correct URL structure for PlanetName
-    const url = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+05:30/Location/${loc}/India`;
+    // Naya structure (URL Builder ke hisaab se)
+    // Format: .../Calculate/Planet/Sun/Location/[Loc]/Time/[Time]/[Date]/[Offset]
+    const url = `https://api.vedastro.org/Calculate/Planet/Sun/Location/${loc}/Time/${tob}/${dob}/+05:30`;
 
     try {
         const response = await fetch(url, {
