@@ -8,17 +8,16 @@
         .container { background: #2d3748; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; }
         input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: none; }
         button { background: #48bb78; color: white; font-weight: bold; cursor: pointer; }
-        #output { margin-top: 20px; padding: 15px; background: #4a5568; border-radius: 6px; }
+        #output { margin-top: 20px; padding: 15px; background: #4a5568; border-radius: 6px; word-wrap: break-word; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Financial Astrology</h2>
-    <input type="date" id="dob">
-    <input type="time" id="tob">
-    <input type="text" id="pob" placeholder="City">
-    <select id="chartType"><option value="D1">D1 Chart</option></select>
+    <input type="date" id="dob" value="2000-01-01">
+    <input type="time" id="tob" value="00:00">
+    <input type="text" id="pob" value="London">
     <button onclick="generateInsight()">Generate Report</button>
     <div id="output">Waiting for data...</div>
 </div>
@@ -26,31 +25,33 @@
 <script>
 async function generateInsight() {
     const output = document.getElementById('output');
-    const dob = document.getElementById('dob').value;
+    const dob = document.getElementById('dob').value.split('-').reverse().join('/'); // Format DD/MM/YYYY
     const tob = document.getElementById('tob').value;
+    const location = document.getElementById('pob').value;
     
-    // UI mein hi debug dikhayenge
-    output.innerHTML = "Fetching data...";
+    // API Key embed karke URL banaya
+    const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
+    const url = `https://api.vedastro.org/api/APIKey/${apiKey}/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+00:00/Location/${location}/UK`;
+    
+    output.innerHTML = "Fetching...";
 
-    const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF';
-    const url = `https://api.vedicastro.org/v1/Calculate/Chart?dob=${dob}&tob=${tob}&lat=26.8467&lon=80.9462&chart=D1&api_key=${apiKey}`;
-    
     try {
-        const res = await fetch(url);
-        const data = await res.json();
+        const response = await fetch(url);
+        const data = await response.json();
         
-        // Agar error aaya toh seedha screen pe dikhega
-        if (data.status === "Failed") {
-            output.innerHTML = `<span style="color:red">API Error: ${data.message}</span>`;
+        console.log("Full Data:", data);
+
+        // API success hone par data display
+        if (data.Status === "Success") {
+            output.innerHTML = `<strong>Planet Info (Sun):</strong><br> ${data.Payload}`;
         } else {
-            output.innerHTML = `<strong>Data Success!</strong><br><pre>${JSON.stringify(data, null, 2).substring(0, 200)}...</pre>`;
+            output.innerHTML = `<span style="color:red">Error: ${data.Message}</span>`;
         }
     } catch(e) {
         output.innerHTML = `<span style="color:red">Connection Error: ${e.message}</span>`;
     }
 }
 </script>
-
 
 </body>
 </html>
