@@ -38,7 +38,7 @@ document.getElementById('astroForm').addEventListener('submit', async (e) => {
     if(!geo.length) return alert("Location not found");
     
     const { lat, lon } = geo[0];
-    const apiKey = 'YOUR_API_KEY'; // Yahan apni API key daal
+    const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF'; // Yahan apni API key daal
     const url = `https://vedicastro.org/api?dob=${document.getElementById('dob').value}&lat=${lat}&lon=${lon}&chart=${document.getElementById('chartType').value}&api_key=${apiKey}`;
     
     const data = await fetch(url).then(r => r.json());
