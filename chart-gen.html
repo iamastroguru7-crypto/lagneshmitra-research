@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Astro Financial Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Astrology Engine</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        form { display: flex; flex-direction: column; gap: 10px; }
-        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
-        button { background: #3182ce; color: white; font-weight: bold; cursor: pointer; }
-        .kundli-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 100px); gap: 2px; background: #333; border: 3px solid #333; margin-top: 20px; }
-        .house { background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        form { display: flex; flex-direction: column; gap: 12px; }
+        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        button { background: #3182ce; color: white; font-weight: bold; cursor: pointer; border: none; }
+        #insight { margin-top: 20px; padding: 15px; background: #edf2f7; border-radius: 6px; display: none; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -21,34 +21,45 @@
         <input type="date" id="dob" required>
         <input type="time" id="tob" required>
         <input type="text" id="pob" placeholder="City Name" required>
-        <select id="chartType"><option value="D1">D1 Chart</option><option value="D9">D9 Navamsha</option></select>
+        <select id="chartType">
+            <option value="D1">D1 Chart (Rashi)</option>
+            <option value="D9">D9 Chart (Navamsha)</option>
+        </select>
         <button type="submit">Generate Insight</button>
     </form>
-    <div id="chartContainer" class="kundli-grid"></div>
-    <div id="insight" style="margin-top:20px; padding:15px; background:#edf2f7; border-radius:6px; display:none;"></div>
+    <div id="insight"></div>
 </div>
 
 <script>
 document.getElementById('astroForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pob = document.getElementById('pob').value;
-    
-    // Geocoding
-    const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pob)}`).then(r => r.json());
-    if(!geo.length) return alert("Location not found");
-    
-    const { lat, lon } = geo[0];
-    const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF'; // Yahan apni API key daal
-    const url = `https://vedicastro.org/api?dob=${document.getElementById('dob').value}&lat=${lat}&lon=${lon}&chart=${document.getElementById('chartType').value}&api_key=${apiKey}`;
-    
-    const data = await fetch(url).then(r => r.json());
-    
-    // UI Update
-    document.getElementById('insight').style.display = 'block';
-    document.getElementById('insight').innerHTML = `<strong>Financial AI Insight:</strong><br> ${data.analysis || "Data generated successfully."}`;
+    const insightDiv = document.getElementById('insight');
+    insightDiv.style.display = 'block';
+    insightDiv.innerHTML = "Processing data...";
+
+    try {
+        const pob = document.getElementById('pob').value;
+        // 1. Geocoding
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pob)}&limit=1`);
+        const geo = await geoRes.json();
+        if(!geo.length) throw new Error("Location not found.");
+        
+        const { lat, lon } = geo[0];
+        const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF';
+        
+        // 2. API Call (VedAstro)
+        const url = `https://api.vedicastro.org/v1/Calculate/Chart?dob=${document.getElementById('dob').value}&tob=${document.getElementById('tob').value}&lat=${lat}&lon=${lon}&chart=${document.getElementById('chartType').value}&api_key=${apiKey}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // 3. Output
+        insightDiv.innerHTML = `<strong>Success!</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+    } catch (err) {
+        insightDiv.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
+    }
 });
 </script>
 
 </body>
 </html>
-
