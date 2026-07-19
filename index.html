@@ -8,22 +8,21 @@
         body, html { 
             height: 100%; margin: 0; 
             background: #0a0a0c; color: #fff; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             display: flex; justify-content: center; align-items: center; 
-            text-align: center; 
+            text-align: center; flex-direction: column;
         }
         .container { padding: 40px; }
-        h1 { 
-            color: #ffd700; font-size: 3rem; 
-            letter-spacing: 4px; text-transform: uppercase; 
-            margin-bottom: 20px; 
-        }
+        h1 { color: #ffd700; font-size: 3rem; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; }
         p { color: #ccc; font-size: 1.2rem; max-width: 500px; line-height: 1.6; }
-        .divider { 
-            width: 50px; height: 3px; background: #ffd700; 
-            margin: 30px auto; 
+        .divider { width: 50px; height: 3px; background: #ffd700; margin: 30px auto; }
+        .status { color: #00ff00; font-weight: bold; font-family: monospace; margin-bottom: 30px; }
+        
+        /* Testing Button Styles */
+        .test-btn { 
+            padding: 15px 30px; background: #ffd700; border: none; 
+            border-radius: 5px; font-weight: bold; cursor: pointer; color: #000;
         }
-        .status { color: #00ff00; font-weight: bold; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -31,9 +30,10 @@
         <h1>LagneshMitra.in</h1>
         <div class="divider"></div>
         <p>We are developing something massive, designed to empower all the needfuls.</p>
-        <p>Your patience is appreciated. We will be back in a while.</p>
-        <br>
         <div class="status">SYSTEM ARCHITECTURE UPGRADE IN PROGRESS...</div>
+        
+        <!-- Tester Button -->
+        <button class="test-btn" onclick="window.location.href='/chart-gen.html'">OPEN TESTER</button>
     </div>
 </body>
 </html>
