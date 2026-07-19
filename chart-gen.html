@@ -14,27 +14,36 @@
 <body>
 <div class="container">
     <h2>Financial Astrology</h2>
-    <input type="date" id="dob" value="2000-01-01">
-    <input type="time" id="tob" value="00:00">
-    <input type="text" id="pob" value="London">
+    <input type="date" id="dob" value="1981-11-08">
+    <input type="time" id="tob" value="03:40">
+    <input type="text" id="pob" value="Lucknow">
     <button onclick="generateInsight()">Generate Report</button>
-    <div id="output">Result will appear here...</div>
+    <div id="output">Waiting for data...</div>
 </div>
 
 <script>
 async function generateInsight() {
     const output = document.getElementById('output');
-    const dob = document.getElementById('dob').value.split('-').reverse().join('/');
+    const dateVal = document.getElementById('dob').value;
+    const [year, month, day] = dateVal.split('-');
+    const dob = `${day}/${month}/${year}`;
     const tob = document.getElementById('tob').value;
     const loc = document.getElementById('pob').value;
+    const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
     
-    output.innerHTML = "Fetching data...";
+    // Proxy URL ka use karke direct fetch
+    const proxy = "https://corsproxy.io/?";
+    const targetUrl = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+05:30/Location/${loc}/India`;
+    
+    output.innerHTML = "Fetching...";
 
     try {
-        const response = await fetch(`/api/get-data?dob=${dob}&tob=${tob}&loc=${loc}`);
-        const data = await response.json();
+        const response = await fetch(proxy + encodeURIComponent(targetUrl), {
+            method: 'GET',
+            headers: { "x-api-key": apiKey }
+        });
         
-        // Pura data stringify karke dikha rahe hain taaki structure pata chale
+        const data = await response.json();
         output.innerHTML = `<strong>Response:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`;
     } catch(e) {
         output.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
