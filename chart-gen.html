@@ -3,52 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Financial Astrology Engine</title>
-    <style>
-        body { font-family: sans-serif; background: #1a202c; color: #fff; display: flex; justify-content: center; padding: 20px; }
-        .container { background: #2d3748; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; }
-        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: none; }
-        button { background: #48bb78; color: white; font-weight: bold; cursor: pointer; }
-        #output { margin-top: 20px; padding: 15px; background: #4a5568; border-radius: 6px; word-wrap: break-word; }
-    </style>
 </head>
 <body>
-<div class="container">
-    <h2>Financial Astrology</h2>
+    <h2>Financial Astrology Engine</h2>
     <input type="date" id="dob" value="1981-11-08">
     <input type="time" id="tob" value="03:40">
     <input type="text" id="pob" value="Lucknow">
     <button onclick="generateInsight()">Generate Report</button>
-    <div id="output">Waiting for data123457...</div>
-</div>
+    <div id="output">Result will appear here...</div>
 
-<script>
-async function generateInsight() {
-    const output = document.getElementById('output');
-    const dateVal = document.getElementById('dob').value;
-    const [year, month, day] = dateVal.split('-');
-    const dob = `${day}/${month}/${year}`;
-    const tob = document.getElementById('tob').value;
-    const loc = document.getElementById('pob').value;
-    const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
-    
-    // Proxy URL ka use karke direct fetch
-    const proxy = "https://corsproxy.io/?";
-    const targetUrl = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+05:30/Location/${loc}/India`;
-    
-    output.innerHTML = "Fetching...";
-
-    try {
-        const response = await fetch(proxy + encodeURIComponent(targetUrl), {
-            method: 'GET',
-            headers: { "x-api-key": apiKey }
-        });
+    <script>
+    async function generateInsight() {
+        const output = document.getElementById('output');
+        const dobRaw = document.getElementById('dob').value;
+        const [y, m, d] = dobRaw.split('-');
+        const dob = `${d}/${m}/${y}`;
+        const tob = document.getElementById('tob').value;
+        const loc = document.getElementById('pob').value;
+        const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
         
-        const data = await response.json();
-        output.innerHTML = `<strong>Response:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`;
-    } catch(e) {
-        output.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
+        // VedAstro URL
+        const targetUrl = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+05:30/Location/${loc}/India`;
+        
+        // Proxy URL
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl + '&api_key=' + apiKey)}`;
+        
+        output.innerHTML = "Fetching...";
+
+        try {
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
+            // AllOrigins data ko 'contents' field mein deta hai
+            const result = JSON.parse(data.contents);
+            output.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+        } catch(e) {
+            output.innerHTML = `<span style="color:red">Error: ${e.message}. Yeh shayad CORS block hai.</span>`;
+        }
     }
-}
-</script>
+    </script>
 </body>
 </html>
