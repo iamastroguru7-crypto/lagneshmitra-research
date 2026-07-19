@@ -28,37 +28,25 @@ async function generateInsight() {
     const output = document.getElementById('output');
     const dob = document.getElementById('dob').value;
     const tob = document.getElementById('tob').value;
-    const pob = document.getElementById('pob').value; // Abhi ke liye static lat/lon use kar rahe hain
     
-    // DEBUGGING START: Yeh dekhna ki inputs sahi ja rahe hain
-    console.log("--- Debugging Started ---");
-    console.log("Date:", dob, "Time:", tob, "Location:", pob);
-    
-    output.innerText = "Analyzing...";
+    // UI mein hi debug dikhayenge
+    output.innerHTML = "Fetching data...";
 
     const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF';
-    // VedAstro API URL (Lat/Lon abhi static Lucknow ka hai, baad mein update karenge)
     const url = `https://api.vedicastro.org/v1/Calculate/Chart?dob=${dob}&tob=${tob}&lat=26.8467&lon=80.9462&chart=D1&api_key=${apiKey}`;
     
     try {
         const res = await fetch(url);
-        
-        // DEBUGGING: Response status check
-        console.log("Response Status:", res.status);
-        
         const data = await res.json();
         
-        // DEBUGGING: Full JSON response check
-        console.log("Full API Response:", data);
-        
-        if (data.status === "Success") {
-            output.innerHTML = `<strong>Data Received!</strong><br>Check Console for full details.`;
+        // Agar error aaya toh seedha screen pe dikhega
+        if (data.status === "Failed") {
+            output.innerHTML = `<span style="color:red">API Error: ${data.message}</span>`;
         } else {
-            throw new Error(data.message || "API error");
+            output.innerHTML = `<strong>Data Success!</strong><br><pre>${JSON.stringify(data, null, 2).substring(0, 200)}...</pre>`;
         }
     } catch(e) {
-        console.error("API Call Failed:", e);
-        output.innerText = "Error: " + e.message + ". Check Console (F12) for details.";
+        output.innerHTML = `<span style="color:red">Connection Error: ${e.message}</span>`;
     }
 }
 </script>
