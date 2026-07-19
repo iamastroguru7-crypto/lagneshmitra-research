@@ -1,18 +1,43 @@
-export default async function handler(req, res) {
-    const { dob, tob, loc } = req.query;
+// File: netlify/functions/get-data.js
+
+export const handler = async (event) => {
+    // API Key aur parameters
     const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
-    
-    // Sahi URL path (bin /api ke)
-    const url = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+00:00/Location/${loc}/UK`;
+    const { dob, tob, loc } = event.queryStringParameters;
+
+    // URL format check (Location mein space ho toh encode karna zaroori hai)
+    const encodedLoc = encodeURIComponent(loc || "Lucknow");
+    const url = `https://api.vedastro.org/Calculate/Planet/Sun/Location/${encodedLoc}/Time/${tob}/${dob}/+05:30`;
 
     try {
         const response = await fetch(url, {
             method: 'GET',
-            headers: { "x-api-key": apiKey }
+            headers: {
+                "x-api-key": apiKey,
+                "Content-Type": "application/json"
+            }
         });
+
+        // Response status check
+        if (!response.ok) {
+            return {
+                statusCode: response.status,
+                body: JSON.stringify({ error: `VedAstro API responded with status: ${response.status}` })
+            };
+        }
+
         const data = await response.json();
-        res.status(200).json(data);
+
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        };
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "Server Error: " + error.message })
+        };
     }
-}
+};
