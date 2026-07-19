@@ -8,7 +8,7 @@
         body { font-family: sans-serif; padding: 20px; background: #0a0a0c; color: #fff; }
         input { padding: 10px; margin: 5px; color: #000; }
         button { padding: 10px 20px; cursor: pointer; background: #ffd700; border: none; font-weight: bold; }
-        #output { margin-top: 20px; white-space: pre-wrap; background: #1a1a1a; padding: 15px; border: 1px solid #333; }
+        #output { margin-top: 20px; white-space: pre-wrap; background: #1a1a1a; padding: 15px; border: 1px solid #333; overflow-x: auto; }
     </style>
 </head>
 <body>
@@ -22,26 +22,29 @@
     <script>
     async function generateInsight() {
         const output = document.getElementById('output');
-        const dobRaw = document.getElementById('dob').value; // YYYY-MM-DD
+        const dobRaw = document.getElementById('dob').value;
         const tob = document.getElementById('tob').value;
         const loc = document.getElementById('pob').value;
         
-        // Date format: DD/MM/YYYY
         const [y, m, d] = dobRaw.split('-');
         const dob = `${d}/${m}/${y}`;
         
         output.innerHTML = "Fetching from server...";
 
         try {
-            // Netlify Function call
-            const response = await fetch(`/.netlify/functions/get-data?dob=${dob}&tob=${tob}&loc=${loc}`);
+            // Updated absolute path for Netlify Function
+            const url = `${window.location.origin}/.netlify/functions/get-data?dob=${dob}&tob=${tob}&loc=${loc}`;
+            const response = await fetch(url);
             
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             
             const data = await response.json();
             output.innerHTML = JSON.stringify(data, null, 2);
         } catch(e) {
-            output.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
+            output.innerHTML = `<span style="color:red">Error: ${e.message}. 
+            <br><br>Check: Is "netlify/functions/get-data.js" committed? Is "netlify.toml" in root?</span>`;
         }
     }
     </script>
