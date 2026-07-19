@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Astrology Engine</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #0a0a0c; color: #fff; }
+        input { padding: 10px; margin: 5px; color: #000; }
+        button { padding: 10px 20px; cursor: pointer; background: #ffd700; border: none; font-weight: bold; }
+        #output { margin-top: 20px; white-space: pre-wrap; background: #1a1a1a; padding: 15px; border: 1px solid #333; }
+    </style>
 </head>
 <body>
     <h2>Financial Astrology Engine</h2>
@@ -15,29 +22,26 @@
     <script>
     async function generateInsight() {
         const output = document.getElementById('output');
-        const dobRaw = document.getElementById('dob').value;
-        const [y, m, d] = dobRaw.split('-');
-        const dob = `${d}/${m}/${y}`;
+        const dobRaw = document.getElementById('dob').value; // YYYY-MM-DD
         const tob = document.getElementById('tob').value;
         const loc = document.getElementById('pob').value;
-        const apiKey = "sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF";
         
-        // VedAstro URL
-        const targetUrl = `https://api.vedastro.org/Calculate/PlanetName/Planet/Sun/Time/${tob}/${dob}/+05:30/Location/${loc}/India`;
+        // Date format: DD/MM/YYYY
+        const [y, m, d] = dobRaw.split('-');
+        const dob = `${d}/${m}/${y}`;
         
-        // Proxy URL
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl + '&api_key=' + apiKey)}`;
-        
-        output.innerHTML = "Fetching...";
+        output.innerHTML = "Fetching from server...";
 
         try {
-            const response = await fetch(proxyUrl);
+            // Netlify Function call
+            const response = await fetch(`/.netlify/functions/get-data?dob=${dob}&tob=${tob}&loc=${loc}`);
+            
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
             const data = await response.json();
-            // AllOrigins data ko 'contents' field mein deta hai
-            const result = JSON.parse(data.contents);
-            output.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            output.innerHTML = JSON.stringify(data, null, 2);
         } catch(e) {
-            output.innerHTML = `<span style="color:red">Error: ${e.message}. Yeh shayad CORS block hai.</span>`;
+            output.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
         }
     }
     </script>
