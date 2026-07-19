@@ -2,63 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Astrology Engine</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        form { display: flex; flex-direction: column; gap: 12px; }
-        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
-        button { background: #3182ce; color: white; font-weight: bold; cursor: pointer; border: none; }
-        #insight { margin-top: 20px; padding: 15px; background: #edf2f7; border-radius: 6px; display: none; line-height: 1.5; }
+        body { font-family: sans-serif; background: #1a202c; color: #fff; display: flex; justify-content: center; padding: 20px; }
+        .container { background: #2d3748; padding: 25px; border-radius: 12px; width: 100%; max-width: 500px; }
+        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 6px; border: none; }
+        button { background: #48bb78; color: white; font-weight: bold; cursor: pointer; }
+        #output { margin-top: 20px; padding: 15px; background: #4a5568; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Financial Astrology Engine</h2>
-    <form id="astroForm">
-        <input type="date" id="dob" required>
-        <input type="time" id="tob" required>
-        <input type="text" id="pob" placeholder="City Name" required>
-        <select id="chartType">
-            <option value="D1">D1 Chart (Rashi)</option>
-            <option value="D9">D9 Chart (Navamsha)</option>
-        </select>
-        <button type="submit">Generate Insight</button>
-    </form>
-    <div id="insight"></div>
+    <h2>Financial Astrology</h2>
+    <input type="date" id="dob">
+    <input type="time" id="tob">
+    <input type="text" id="pob" placeholder="City">
+    <select id="chartType"><option value="D1">D1 Chart</option></select>
+    <button onclick="generateInsight()">Generate Report</button>
+    <div id="output">Waiting for data...</div>
 </div>
 
 <script>
-document.getElementById('astroForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const insightDiv = document.getElementById('insight');
-    insightDiv.style.display = 'block';
-    insightDiv.innerHTML = "Processing data...";
-
+// VedAstro API Client (Vercel ready)
+async function generateInsight() {
+    const output = document.getElementById('output');
+    output.innerText = "Analyzing financial stars...";
+    
+    // Yahan API Key aur logic client-side se fetch hoga
+    const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF';
+    const dob = document.getElementById('dob').value;
+    const tob = document.getElementById('tob').value;
+    
+    // API Call
+    const url = `https://api.vedicastro.org/v1/Calculate/Chart?dob=${dob}&tob=${tob}&lat=26.8467&lon=80.9462&chart=D1&api_key=${apiKey}`;
+    
     try {
-        const pob = document.getElementById('pob').value;
-        // 1. Geocoding
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pob)}&limit=1`);
-        const geo = await geoRes.json();
-        if(!geo.length) throw new Error("Location not found.");
+        const res = await fetch(url);
+        const data = await res.json();
         
-        const { lat, lon } = geo[0];
-        const apiKey = 'sk_live_0QU8V8YdAMv7v08zj1oST2kqk7Mi9Oxf19f54OiF';
-        
-        // 2. API Call (VedAstro)
-        const url = `https://api.vedicastro.org/v1/Calculate/Chart?dob=${document.getElementById('dob').value}&tob=${document.getElementById('tob').value}&lat=${lat}&lon=${lon}&chart=${document.getElementById('chartType').value}&api_key=${apiKey}`;
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        // 3. Output
-        insightDiv.innerHTML = `<strong>Success!</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
-    } catch (err) {
-        insightDiv.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
+        // Insight Logic (Papa ke liye simple output)
+        const jupiterHouse = data.data.planets.jupiter.house; // Example logic
+        let message = (jupiterHouse === 2 || jupiterHouse === 11) 
+            ? "Strong wealth potential indicated by Jupiter placement." 
+            : "Focus on steady income and savings.";
+            
+        output.innerHTML = `<strong>Financial Verdict:</strong><br>${message}`;
+    } catch(e) {
+        output.innerText = "Error loading data. Check API Key or Input.";
     }
-});
+}
 </script>
 
 </body>
